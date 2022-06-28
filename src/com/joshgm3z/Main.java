@@ -19,16 +19,15 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
-        System.out.println("args: [" + args[0] + "], [" + args[1] + "]");
-        if (args.length >= 2) {
+        if (args.length >= 1) {
             String logIdFilePath = null;
             String projectRootPath = null;
             for (int i = 0; i < args.length; i++) {
                 String arg = args[i];
                 if (arg.contains(ARG_LOG_ID_FILE)) {
                     logIdFilePath = getValue(arg);
-                } else if (arg.contains(ARG_PROJECT_ROOT)) {
-                    projectRootPath = getValue(arg);
+                    String[] splitByJava = logIdFilePath.split("java");
+                    projectRootPath = splitByJava[0] + "java\\";
                 }
             }
             new Main(logIdFilePath, projectRootPath).init();
@@ -43,7 +42,9 @@ public class Main {
     }
 
     private void init() {
+
         FileManager fileManager = new FileManager();
-        List<LogData> logData = fileManager.readFileToString(mLogIdFilePath);
+        fileManager.readFileToString(mLogIdFilePath);
+        fileManager.readAllFiles(mProjectRootPath);
     }
 }
