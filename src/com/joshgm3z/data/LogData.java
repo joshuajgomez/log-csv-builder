@@ -1,4 +1,4 @@
-package com.joshgm3z;
+package com.joshgm3z.data;
 
 import java.util.HashMap;
 
@@ -10,8 +10,15 @@ public class LogData {
         int STRING = 2;
     }
 
+    public LogData(int id, String name, int headerValue) {
+        mId = id;
+        mName = name;
+        mHeaderValue = headerValue;
+    }
+
     private String mName;
-    private String mId;
+    private int mId;
+    private int mHeaderValue;
     /**
      * mParamList< Name , Type >
      */
@@ -25,11 +32,19 @@ public class LogData {
         mName = name;
     }
 
-    public String getId() {
+    public int getId() {
         return mId;
     }
 
-    public void setId(String id) {
+    public int getHeaderValue() {
+        return mHeaderValue;
+    }
+
+    public void setHeaderValue(int headerValue) {
+        mHeaderValue = headerValue;
+    }
+
+    public void setId(int id) {
         mId = id;
     }
 
@@ -45,7 +60,8 @@ public class LogData {
     public String toString() {
         return "LogData{" +
                 "mName='" + mName + '\'' +
-                ", mId='" + mId + '\'' +
+                ", mId=" + mId +
+                ", mHeaderValue=" + mHeaderValue +
                 ", mParamList=" + mParamList +
                 '}';
     }

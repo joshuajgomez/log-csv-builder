@@ -1,5 +1,9 @@
 package com.joshgm3z;
 
+import com.joshgm3z.data.LogData;
+
+import java.util.List;
+
 public class Main {
 
     private final static String ARG_LOG_ID_FILE = "log-file";
@@ -33,12 +37,13 @@ public class Main {
         }
     }
 
-    private void init() {
-
-    }
-
     private static String getValue(String keyValue) {
         String[] splitByEquals = keyValue.split("=");
         return splitByEquals[1];
+    }
+
+    private void init() {
+        FileManager fileManager = new FileManager();
+        List<LogData> logData = fileManager.readFileToString(mLogIdFilePath);
     }
 }
