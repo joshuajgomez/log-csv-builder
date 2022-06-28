@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -18,6 +19,8 @@ import java.util.stream.Stream;
 public class FileManager {
 
     List<LogData> mLogDataList = new ArrayList<>();
+
+    private final String WORD_INT_ARRAY = "new Integer[]{";
 
     public void readFileToString(String filePath) {
         File logIdFile = new File(filePath);
@@ -128,34 +131,77 @@ public class FileManager {
     }
 
     private void parseLogParams(String javaLine) {
-        LogData logData = null;
-        for (LogData _logData : mLogDataList) {
-            if (javaLine.contains(_logData.getName() + ",")) {
-                logData = _logData;
+        int position = -1;
+        for (int i = 0; i < mLogDataList.size(); i++) {
+            if (javaLine.contains(mLogDataList.get(i).getName() + ",")) {
+                position = i;
                 break;
             }
         }
-        if (logData != null) {
-
-            System.out.println();
-            System.out.println();
-            System.out.println("logData: " + logData);
-            System.out.println("javaLine: " + javaLine);
-
-            String[] splitByLogName = javaLine.split(logData.getName());
-
-            if (splitByLogName.length > 1) {
-                String paramData = splitByLogName[1];
-                System.out.println("paramData: " + paramData);
-                paramData = removeSymbol(paramData, ",");
-                System.out.println("paramData after: " + paramData);
+        if (position != -1) {
+            LogData logData = mLogDataList.get(position);
+            if (logData != null) {
+//            System.out.println();
+//            System.out.println();
+//            System.out.println("logData: " + logData);
+//            System.out.println("javaLine: " + javaLine);
+                String[] splitByLogName = javaLine.split(logData.getName());
+                if (splitByLogName.length > 1) {
+                    String paramData = splitByLogName[1];
+// dwddd                   System.out.println("paramData: " + paramData);
+                    HashMap<String, Integer> paramList = null;
+                    if (paramData.contains(WORD_INT_ARRAY)) {
+                        // integer array
+                        paramList = parseParamIntArray(paramData);
+                    } else {
+                        // single variable
+                        paramList = parseParamOthers(paramData);
+                    }
+                    if (paramList != null) {
+                        logData.setParamList(paramList);
+                        mLogDataList.set(position, logData);
+                    }
+                }
             }
         }
+        System.out.println(mLogDataList);
     }
 
-    private String removeSymbol(String paramData, String symbol) {
-        while (paramData.contains(symbol)) {
-            paramData = paramData.replace(symbol, "");
+    private HashMap<String, Integer> parseParamOthers(String paramData) {
+        HashMap<String, Integer> paramMap = new HashMap<>();
+        String[] splitByComma = paramData.split(",");
+        if (splitByComma.length > 1) {
+            String split = splitByComma[1];
+            split = removeCommonSymbols(split);
+            paramMap.put(split, LogData.ParamType.STRING);
+        }
+        return paramMap;
+    }
+
+    private HashMap<String, Integer> parseParamIntArray(String paramData) {
+        HashMap<String, Integer> paramList = new HashMap<>();
+        paramData = removeSymbol(paramData, WORD_INT_ARRAY);
+        paramData = removeCommonSymbols(paramData);
+        String[] splitByComma = paramData.split(",");
+        for (String split : splitByComma) {
+            if (!split.trim().isEmpty()) {
+                paramList.put(split.trim(), LogData.ParamType.INTEGER);
+            }
+        }
+        return paramList;
+    }
+
+    private String removeCommonSymbols(String paramData) {
+        return removeSymbol(paramData,
+                "{", "}",
+                "(", ")");
+    }
+
+    private String removeSymbol(String paramData, String... symbol) {
+        for (String _s : symbol) {
+            while (paramData.contains(_s)) {
+                paramData = paramData.replace(_s, "");
+            }
         }
         return paramData.trim();
     }

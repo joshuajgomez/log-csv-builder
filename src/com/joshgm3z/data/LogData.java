@@ -4,10 +4,15 @@ import java.util.HashMap;
 
 public class LogData {
 
+    public void setParamList(HashMap<String, Integer> paramList) {
+        mParamList = paramList;
+    }
+
     public @interface ParamType {
-        int BOOLEAN = 0;
-        int INTEGER = 1;
-        int STRING = 2;
+        int UNKNOWN = 0;
+        int BOOLEAN = 1;
+        int INTEGER = 2;
+        int STRING = 3;
     }
 
     public LogData(int id, String name, int headerValue) {
