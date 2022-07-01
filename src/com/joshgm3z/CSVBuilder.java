@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CSVBuilder {
 
-    private final String OUTPUT_FILE = "C:\\Users\\GF71157\\Desktop\\output\\DMS.csv";
+    private final String OUTPUT_FILE = "C:\\Users\\GF71157\\Desktop\\output\\DEV_MGR_SRV.csv";
 
     public void build(List<LogData> logDataList) {
         try {
