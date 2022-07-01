@@ -11,8 +11,8 @@ public class LogData {
     public @interface ParamType {
         int UNKNOWN = 0;
         int BOOLEAN = 1;
-        int INTEGER = 2;
-        int STRING = 3;
+        int INTEGER = 4;
+        int STRING = 32;
     }
 
     public LogData(int id, String name, int headerValue) {

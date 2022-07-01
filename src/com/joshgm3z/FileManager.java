@@ -93,7 +93,7 @@ public class FileManager {
         return headerValue;
     }
 
-    public void readAllFiles(String projectRootPath) {
+    public List<LogData> readAllFiles(String projectRootPath) {
         List<String> allFilePaths = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get(projectRootPath))) {
             allFilePaths = paths.filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toList());
@@ -105,6 +105,7 @@ public class FileManager {
                 readFile(filePath);
             }
         }
+        return mLogDataList;
     }
 
     private void readFile(String javaFile) {

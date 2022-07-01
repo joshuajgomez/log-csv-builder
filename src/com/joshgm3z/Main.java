@@ -45,6 +45,9 @@ public class Main {
 
         FileManager fileManager = new FileManager();
         fileManager.readFileToString(mLogIdFilePath);
-        fileManager.readAllFiles(mProjectRootPath);
+        List<LogData> logDataList = fileManager.readAllFiles(mProjectRootPath);
+
+        CSVBuilder csvBuilder = new CSVBuilder();
+        csvBuilder.build(logDataList);
     }
 }
