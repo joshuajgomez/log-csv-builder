@@ -1,14 +1,15 @@
 package com.joshgm3z.data;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogData {
 
-    public void setParamList(HashMap<String, Integer> paramList) {
+    public void setParamList(List<Param> paramList) {
         mParamList = paramList;
     }
 
-    public @interface ParamType {
+    public @interface ParamSize {
         int UNKNOWN = 0;
         int BOOLEAN = 1;
         int INTEGER = 4;
@@ -27,7 +28,7 @@ public class LogData {
     /**
      * mParamList< Name , Type >
      */
-    private HashMap<String, Integer> mParamList = new HashMap<>();
+    private List<Param> mParamList;
 
     public String getName() {
         return mName;
@@ -53,12 +54,8 @@ public class LogData {
         mId = id;
     }
 
-    public HashMap<String, Integer> getParamList() {
-        return mParamList;
-    }
-
-    public void addParam(String name, int type) {
-        mParamList.put(name, type);
+    public List<Param> getParamList() {
+        return mParamList != null ? mParamList : new ArrayList<>();
     }
 
     @Override

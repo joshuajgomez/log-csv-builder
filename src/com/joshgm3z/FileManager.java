@@ -2,6 +2,7 @@ package com.joshgm3z;
 
 import com.joshgm3z.data.LogData;
 import com.joshgm3z.data.LogHeader;
+import com.joshgm3z.data.Param;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -21,6 +21,8 @@ public class FileManager {
     List<LogData> mLogDataList = new ArrayList<>();
 
     private final String WORD_INT_ARRAY = "new Integer[]{";
+    private final String WORD_INT_ARRAY1 = "newInteger[]{";
+    private final int MAX_PARAM_NAME_LENGTH = 30;
 
     public void readFileToString(String filePath) {
         File logIdFile = new File(filePath);
@@ -150,8 +152,8 @@ public class FileManager {
                 if (splitByLogName.length > 1) {
                     String paramData = splitByLogName[1];
 // dwddd                   System.out.println("paramData: " + paramData);
-                    HashMap<String, Integer> paramList = null;
-                    if (paramData.contains(WORD_INT_ARRAY)) {
+                    List<Param> paramList;
+                    if (paramData.contains(WORD_INT_ARRAY) || paramData.contains(WORD_INT_ARRAY1)) {
                         // integer array
                         paramList = parseParamIntArray(paramData);
                     } else {
@@ -165,28 +167,34 @@ public class FileManager {
                 }
             }
         }
-        System.out.println(mLogDataList);
+//        System.out.println(mLogDataList);
     }
 
-    private HashMap<String, Integer> parseParamOthers(String paramData) {
-        HashMap<String, Integer> paramMap = new HashMap<>();
+    private List<Param> parseParamOthers(String paramData) {
+        List<Param> paramMap = new ArrayList<>();
         String[] splitByComma = paramData.split(",");
         if (splitByComma.length > 1) {
             String split = splitByComma[1];
             split = removeCommonSymbols(split);
-            paramMap.put(split, LogData.ParamType.STRING);
+            String paramName = "param";
+            if (!split.contains("\"") && split.length() < MAX_PARAM_NAME_LENGTH) {
+                // status
+                paramName = split;
+            }
+            paramMap.add(new Param(paramName, LogData.ParamSize.STRING, 2, 1));
         }
         return paramMap;
     }
 
-    private HashMap<String, Integer> parseParamIntArray(String paramData) {
-        HashMap<String, Integer> paramList = new HashMap<>();
+    private List<Param> parseParamIntArray(String paramData) {
+        List<Param> paramList = new ArrayList<>();
         paramData = removeSymbol(paramData, WORD_INT_ARRAY);
+        paramData = removeSymbol(paramData, WORD_INT_ARRAY1);
         paramData = removeCommonSymbols(paramData);
         String[] splitByComma = paramData.split(",");
         for (String split : splitByComma) {
-            if (!split.trim().isEmpty()) {
-                paramList.put(split.trim(), LogData.ParamType.INTEGER);
+            if (!split.trim().isEmpty() && !split.contains("\"")) {
+                paramList.add(new Param(split.trim(), LogData.ParamSize.INTEGER, 3, 1));
             }
         }
         return paramList;

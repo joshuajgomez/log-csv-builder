@@ -1,14 +1,12 @@
 package com.joshgm3z;
 
 import com.joshgm3z.data.LogData;
+import com.joshgm3z.data.Param;
 import com.opencsv.CSVWriter;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 public class CSVBuilder {
 
@@ -31,7 +29,7 @@ public class CSVBuilder {
 
             for (LogData logData : logDataList) {
 
-                HashMap<String, Integer> paramList = logData.getParamList();
+                List<Param> paramList = logData.getParamList();
 
                 // add log title
                 String logTitleId = String.valueOf(logData.getId() + logData.getHeaderValue());
@@ -41,11 +39,8 @@ public class CSVBuilder {
                 csvWriter.writeNext(logTitle);
 
                 if (!paramList.isEmpty()) {
-                    Set<String> paramNameSet = paramList.keySet();
-                    for (String paramName : paramNameSet) {
-                        String paramType = paramList.get(paramName).toString();
-                        String paramSize = getParamSize(paramList.get(paramName));
-                        String[] logParam = {paramType, paramName, paramSize, "1"};
+                    for (Param param : paramList) {
+                        String[] logParam = {param.getSize(), param.getName(), param.getType(), param.getSuffix()};
                         csvWriter.writeNext(logParam);
                     }
                 }
@@ -61,11 +56,11 @@ public class CSVBuilder {
 
     private String getParamSize(int type) {
         String size = "0";
-        if (type == LogData.ParamType.INTEGER)
+        if (type == LogData.ParamSize.INTEGER)
             size = "3";
-        else if (type == LogData.ParamType.STRING)
+        else if (type == LogData.ParamSize.STRING)
             size = "2";
-        else if (type == LogData.ParamType.BOOLEAN)
+        else if (type == LogData.ParamSize.BOOLEAN)
             size = "0";
         return size;
     }
