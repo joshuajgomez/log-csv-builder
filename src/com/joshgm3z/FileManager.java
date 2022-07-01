@@ -126,11 +126,8 @@ public class FileManager {
         }
         String[] splitBySemicolon = data.toString().split(";");
         for (String javaLine : splitBySemicolon) {
-            if ((javaLine.startsWith("mLogUtility")
-                    || javaLine.startsWith("sLogUtility")
-                    || javaLine.startsWith("mLogInstance")
-            )
-                    && !javaLine.contains("=")) {
+            if (
+            !javaLine.contains("=")) {
                 parseLogParams(javaLine);
             } else {
                 // ignore
@@ -177,6 +174,7 @@ public class FileManager {
     }
 
     private List<Param> parseParamOthers(String paramData) {
+//        System.out.println(paramData);
         List<Param> paramMap = new ArrayList<>();
         String[] splitByComma = paramData.split(",");
         if (splitByComma.length > 1) {
@@ -196,7 +194,7 @@ public class FileManager {
         int paramSize = LogData.ParamSize.STRING;
         if (paramName.contains("size") || paramName.contains("index") || paramName.contains("count") || paramName.matches("\\d")) {
             paramSize = LogData.ParamSize.INTEGER;
-        } else if (paramName.startsWith("is"))
+        } else if (paramName.startsWith("is") || paramName.startsWith("mIs"))
             paramSize = LogData.ParamSize.BOOLEAN;
         return paramSize;
     }

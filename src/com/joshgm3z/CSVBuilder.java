@@ -10,22 +10,18 @@ import java.util.List;
 
 public class CSVBuilder {
 
-    private final String OUTPUT_FILE = "C:\\Users\\GF71157\\Desktop\\output\\DEV_MGR_SRV.csv";
+    private String mOutputFilePath;
+
+    public CSVBuilder(String outputPath) {
+        mOutputFilePath = outputPath
+                + (outputPath.endsWith("\\") ? "" : "\\")
+                + "RENAME_TO_MODULE.csv";
+    }
 
     public void build(List<LogData> logDataList) {
         try {
-            FileWriter fileWriter = new FileWriter(OUTPUT_FILE);
+            FileWriter fileWriter = new FileWriter(mOutputFilePath);
             CSVWriter csvWriter = new CSVWriter(fileWriter);
-
-//            // adding header to csv
-//            String[] header = {"Name", "Class", "Marks"};
-//            csvWriter.writeNext(header);
-//
-//            // add data to csv
-//            String[] data1 = {"Aman", "10", "620"};
-//            csvWriter.writeNext(data1);
-//            String[] data2 = {"Suraj", "10", "630"};
-//            csvWriter.writeNext(data2);
 
             for (LogData logData : logDataList) {
 

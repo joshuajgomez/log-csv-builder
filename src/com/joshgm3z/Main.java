@@ -8,13 +8,16 @@ public class Main {
 
     private final static String ARG_LOG_ID_FILE = "log-file";
     private final static String ARG_PROJECT_ROOT = "project-root";
+    private final static String ARG_OUTPUT_DIR = "output-dir";
 
     private String mLogIdFilePath;
     private String mProjectRootPath;
+    private String mOutputPath;
 
-    public Main(String logIdFilePath, String projectRootPath) {
+    public Main(String logIdFilePath, String projectRootPath, String outputPath) {
         this.mLogIdFilePath = logIdFilePath;
-        this.mProjectRootPath = projectRootPath;
+        mProjectRootPath = projectRootPath;
+        this.mOutputPath = outputPath;
     }
 
     public static void main(String[] args) {
@@ -22,15 +25,18 @@ public class Main {
         if (args.length >= 1) {
             String logIdFilePath = null;
             String projectRootPath = null;
+            String outputPath = null;
             for (int i = 0; i < args.length; i++) {
                 String arg = args[i];
                 if (arg.contains(ARG_LOG_ID_FILE)) {
                     logIdFilePath = getValue(arg);
                     String[] splitByJava = logIdFilePath.split("java");
                     projectRootPath = splitByJava[0] + "java\\";
+                } else if (arg.contains(ARG_OUTPUT_DIR)) {
+                    outputPath = getValue(arg);
                 }
             }
-            new Main(logIdFilePath, projectRootPath).init();
+            new Main(logIdFilePath, projectRootPath, outputPath).init();
         } else {
             // invalid parameters
         }
@@ -47,7 +53,7 @@ public class Main {
         fileManager.readFileToString(mLogIdFilePath);
         List<LogData> logDataList = fileManager.readAllFiles(mProjectRootPath);
 
-        CSVBuilder csvBuilder = new CSVBuilder();
+        CSVBuilder csvBuilder = new CSVBuilder(mOutputPath);
         csvBuilder.build(logDataList);
     }
 }
