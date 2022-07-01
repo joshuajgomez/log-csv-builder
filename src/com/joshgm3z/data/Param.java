@@ -6,11 +6,16 @@ public class Param {
     private int mType;
     private int mSuffix;
 
-    public Param(String name, int size, int type, int suffix) {
+    public Param(String name, int size) {
         mName = name;
         mSize = size;
-        mType = type;
-        mSuffix = suffix;
+        if (size == LogData.ParamSize.INTEGER)
+            mType = 3;
+        else if (size == LogData.ParamSize.STRING)
+            mType = 2;
+        else if (size == LogData.ParamSize.BOOLEAN)
+            mType = 0;
+        mSuffix = 1;
     }
 
     public String getName() {

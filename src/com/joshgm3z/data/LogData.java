@@ -13,7 +13,7 @@ public class LogData {
         int UNKNOWN = 0;
         int BOOLEAN = 1;
         int INTEGER = 4;
-        int STRING = 32;
+        int STRING = 256;
     }
 
     public LogData(int id, String name, int headerValue) {

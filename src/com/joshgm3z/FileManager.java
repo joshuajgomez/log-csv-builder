@@ -183,13 +183,21 @@ public class FileManager {
             String split = splitByComma[1];
             split = removeCommonSymbols(split);
             String paramName = "param";
-            if (!split.contains("\"") && split.length() < MAX_PARAM_NAME_LENGTH) {
+            if (!split.contains("\"") && split.length() < MAX_PARAM_NAME_LENGTH && !split.matches("\\d")) {
                 // status
                 paramName = split;
             }
-            paramMap.add(new Param(paramName, LogData.ParamSize.STRING, 2, 1));
+            paramMap.add(new Param(paramName, getParamSize(split)));
         }
         return paramMap;
+    }
+
+    private int getParamSize(String split) {
+        int paramSize = LogData.ParamSize.STRING;
+        if (split.contains("size") || split.contains("index") || split.contains("count") || split.matches("\\d")) {
+            paramSize = LogData.ParamSize.INTEGER;
+        }
+        return paramSize;
     }
 
     private List<Param> parseParamIntArray(String paramData) {
@@ -200,7 +208,7 @@ public class FileManager {
         String[] splitByComma = paramData.split(",");
         for (String split : splitByComma) {
             if (!split.trim().isEmpty() && !split.contains("\"")) {
-                paramList.add(new Param(split.trim(), LogData.ParamSize.INTEGER, 3, 1));
+                paramList.add(new Param(split.trim(), LogData.ParamSize.INTEGER));
             }
         }
         return paramList;
