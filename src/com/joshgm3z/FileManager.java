@@ -111,6 +111,7 @@ public class FileManager {
     }
 
     private void readFile(String javaFile) {
+//        System.out.println(javaFile);
         StringBuilder data = new StringBuilder();
         try {
             Scanner scanner = new Scanner(new File(javaFile));
@@ -125,7 +126,11 @@ public class FileManager {
         }
         String[] splitBySemicolon = data.toString().split(";");
         for (String javaLine : splitBySemicolon) {
-            if (javaLine.startsWith("mLogUtility") && !javaLine.contains("=")) {
+            if ((javaLine.startsWith("mLogUtility")
+                    || javaLine.startsWith("sLogUtility")
+                    || javaLine.startsWith("mLogInstance")
+            )
+                    && !javaLine.contains("=")) {
                 parseLogParams(javaLine);
             } else {
                 // ignore
@@ -134,6 +139,7 @@ public class FileManager {
     }
 
     private void parseLogParams(String javaLine) {
+//        System.out.println(javaLine);
         int position = -1;
         for (int i = 0; i < mLogDataList.size(); i++) {
             if (javaLine.contains(mLogDataList.get(i).getName() + ",")) {
@@ -151,7 +157,7 @@ public class FileManager {
                 String[] splitByLogName = javaLine.split(logData.getName());
                 if (splitByLogName.length > 1) {
                     String paramData = splitByLogName[1];
-// dwddd                   System.out.println("paramData: " + paramData);
+//                    System.out.println("paramData: " + paramData);
                     List<Param> paramList;
                     if (paramData.contains(WORD_INT_ARRAY) || paramData.contains(WORD_INT_ARRAY1)) {
                         // integer array
@@ -203,6 +209,7 @@ public class FileManager {
     private String removeCommonSymbols(String paramData) {
         return removeSymbol(paramData,
                 "{", "}",
+                ".toString",
                 "(", ")");
     }
 
