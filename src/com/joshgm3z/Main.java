@@ -1,6 +1,7 @@
 package com.joshgm3z;
 
 import com.joshgm3z.data.LogData;
+import com.joshgm3z.data.ProgressTimer;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class Main {
     private FileManager mFileManager;
 
     public Main(String logIdFilePath, String outputPath) {
-        System.out.println("Main() called with: logIdFilePath = [" + logIdFilePath + "], outputPath = [" + outputPath + "]");
+//        System.out.println("Main() called with: logIdFilePath = [" + logIdFilePath + "], outputPath = [" + outputPath + "]");
         this.mLogIdFilePath = logIdFilePath;
         this.mOutputPath = outputPath;
         mFileManager = new FileManager();
@@ -48,14 +49,22 @@ public class Main {
 
     private void init() {
 
+        ProgressTimer progressTimer = new ProgressTimer();
+
         List<String> logIdFiles = mFileManager.readIntoList(mLogIdFilePath);
         CSVBuilder csvBuilder = new CSVBuilder(mOutputPath);
 
         for (String logIdFile : logIdFiles) {
+            String projectName = getFileName(logIdFile);
+            System.out.print("Checking " + projectName + " for logs...");
+            progressTimer.start();
             List<LogData> logDataList = mFileManager.findLogs(logIdFile, getProjectRootPath(logIdFile));
-            getFileName(logIdFile);
-            csvBuilder.build(logDataList, getFileName(logIdFile));
+            csvBuilder.build(logDataList, projectName);
+            progressTimer.stop();
+            System.out.print(" done.");
+            System.out.println();
         }
+
     }
 
     private String getFileName(String logIdFile) {
@@ -68,5 +77,4 @@ public class Main {
         String[] splitByJava = logIdFilePath.split("java");
         return splitByJava[0] + "java\\";
     }
-
 }
