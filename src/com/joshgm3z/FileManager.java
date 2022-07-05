@@ -233,13 +233,13 @@ public class FileManager {
                 "(", ")");
     }
 
-    private String removeSymbol(String paramData, String... symbol) {
+    public String removeSymbol(String text, String... symbol) {
         for (String _s : symbol) {
-            while (paramData.contains(_s)) {
-                paramData = paramData.replace(_s, "");
+            while (text.contains(_s)) {
+                text = text.replace(_s, "");
             }
         }
-        return paramData.trim();
+        return text.trim();
     }
 
     public List<String> readIntoList(String logIdFilePath) {
@@ -249,7 +249,7 @@ public class FileManager {
             while (scanner.hasNext()) {
                 String line = scanner.nextLine();
                 if (!line.isEmpty()) {
-                    fileList.add(line);
+                    fileList.add(removeSymbol(line, "\""));
                 }
             }
         } catch (FileNotFoundException e) {
