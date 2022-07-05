@@ -53,6 +53,7 @@ public class Main {
 
         List<String> logIdFiles = mFileManager.readIntoList(mLogIdFilePath);
         CSVBuilder csvBuilder = new CSVBuilder(mOutputPath);
+        System.out.println();
 
         for (String logIdFile : logIdFiles) {
             String projectName = getFileName(logIdFile);

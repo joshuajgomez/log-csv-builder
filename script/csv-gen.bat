@@ -4,11 +4,9 @@ set outputDir=%TEMP%\Log_CSV_Output\
 set inputFile=%outputDir%input
 set jarFile=E:\projects\log-csv-builder\out\artifacts\log_csv_builder_jar\log-csv-builder.jar
 
-echo outputDir %outputDir%
-echo inputFile %inputFile%
-echo jarFile %jarFile%
+if exist %outputDir% RMDIR /S /Q %outputDir%
 
-if not exist %outputDir% mkdir %outputDir%
+mkdir %outputDir%
 echo.>%inputFile%
 
 notepad %inputFile%
