@@ -24,7 +24,7 @@ public class FileManager {
     private final String WORD_INT_ARRAY1 = "newInteger[]{";
     private final int MAX_PARAM_NAME_LENGTH = 30;
 
-    public void readFileToString(String filePath) {
+    private void readLogIds(String filePath) {
         File logIdFile = new File(filePath);
         StringBuilder data = new StringBuilder();
         try (Scanner scanner = new Scanner(logIdFile)) {
@@ -40,7 +40,7 @@ public class FileManager {
         parseData(data.toString());
     }
 
-    public void parseData(String data) {
+    private void parseData(String data) {
         buildLogData(data, buildLogHeader(data));
     }
 
@@ -64,7 +64,7 @@ public class FileManager {
         return logHeaderList;
     }
 
-    public void buildLogData(String data, List<LogHeader> headerList) {
+    private void buildLogData(String data, List<LogHeader> headerList) {
         String[] splitBySemiColon = data.split(";");
         for (String logId : splitBySemiColon) {
             if (logId.contains("int")) {
@@ -95,18 +95,24 @@ public class FileManager {
         return headerValue;
     }
 
-    public List<LogData> readAllFiles(String projectRootPath) {
+    public List<LogData> findLogs(String logIdFile, String projectRootPath) {
+        mLogDataList.clear();
+
+        readLogIds(logIdFile);
+
         List<String> allFilePaths = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get(projectRootPath))) {
             allFilePaths = paths.filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         for (String filePath : allFilePaths) {
             if (filePath.endsWith(".java")) {
                 readFile(filePath);
             }
         }
+
         return mLogDataList;
     }
 
@@ -127,7 +133,7 @@ public class FileManager {
         String[] splitBySemicolon = data.toString().split(";");
         for (String javaLine : splitBySemicolon) {
             if (
-            !javaLine.contains("=")) {
+                    !javaLine.contains("=")) {
                 parseLogParams(javaLine);
             } else {
                 // ignore
@@ -234,5 +240,21 @@ public class FileManager {
             }
         }
         return paramData.trim();
+    }
+
+    public List<String> readIntoList(String logIdFilePath) {
+        List<String> fileList = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File(logIdFilePath));
+            while (scanner.hasNext()) {
+                String line = scanner.nextLine();
+                if (!line.isEmpty()) {
+                    fileList.add(line);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return fileList;
     }
 }

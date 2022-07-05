@@ -10,17 +10,15 @@ import java.util.List;
 
 public class CSVBuilder {
 
-    private String mOutputFilePath;
+    private String mOutputPath;
 
     public CSVBuilder(String outputPath) {
-        mOutputFilePath = outputPath
-                + (outputPath.endsWith("\\") ? "" : "\\")
-                + "RENAME_TO_MODULE.csv";
+        mOutputPath = outputPath + (outputPath.endsWith("\\") ? "" : "\\");
     }
 
-    public void build(List<LogData> logDataList) {
+    public void build(List<LogData> logDataList, String fileName) {
         try {
-            FileWriter fileWriter = new FileWriter(mOutputFilePath);
+            FileWriter fileWriter = new FileWriter(mOutputPath + fileName + ".csv");
             CSVWriter csvWriter = new CSVWriter(fileWriter);
 
             for (LogData logData : logDataList) {

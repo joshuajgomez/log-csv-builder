@@ -13,30 +13,29 @@ public class Main {
     private String mLogIdFilePath;
     private String mProjectRootPath;
     private String mOutputPath;
+    private FileManager mFileManager;
 
-    public Main(String logIdFilePath, String projectRootPath, String outputPath) {
+    public Main(String logIdFilePath, String outputPath) {
+        System.out.println("Main() called with: logIdFilePath = [" + logIdFilePath + "], outputPath = [" + outputPath + "]");
         this.mLogIdFilePath = logIdFilePath;
-        mProjectRootPath = projectRootPath;
         this.mOutputPath = outputPath;
+        mFileManager = new FileManager();
     }
 
     public static void main(String[] args) {
         // write your code here
         if (args.length >= 1) {
             String logIdFilePath = null;
-            String projectRootPath = null;
             String outputPath = null;
             for (int i = 0; i < args.length; i++) {
                 String arg = args[i];
                 if (arg.contains(ARG_LOG_ID_FILE)) {
                     logIdFilePath = getValue(arg);
-                    String[] splitByJava = logIdFilePath.split("java");
-                    projectRootPath = splitByJava[0] + "java\\";
                 } else if (arg.contains(ARG_OUTPUT_DIR)) {
                     outputPath = getValue(arg);
                 }
             }
-            new Main(logIdFilePath, projectRootPath, outputPath).init();
+            new Main(logIdFilePath, outputPath).init();
         } else {
             // invalid parameters
         }
@@ -49,11 +48,25 @@ public class Main {
 
     private void init() {
 
-        FileManager fileManager = new FileManager();
-        fileManager.readFileToString(mLogIdFilePath);
-        List<LogData> logDataList = fileManager.readAllFiles(mProjectRootPath);
-
+        List<String> logIdFiles = mFileManager.readIntoList(mLogIdFilePath);
         CSVBuilder csvBuilder = new CSVBuilder(mOutputPath);
-        csvBuilder.build(logDataList);
+
+        for (String logIdFile : logIdFiles) {
+            List<LogData> logDataList = mFileManager.findLogs(logIdFile, getProjectRootPath(logIdFile));
+            getFileName(logIdFile);
+            csvBuilder.build(logDataList, getFileName(logIdFile));
+        }
     }
+
+    private String getFileName(String logIdFile) {
+        String[] splitBySlash = logIdFile.split("\\\\");
+        List<String> splitBySlashList = List.of(splitBySlash);
+        return splitBySlashList.get(splitBySlashList.indexOf("app") - 1);
+    }
+
+    private String getProjectRootPath(String logIdFilePath) {
+        String[] splitByJava = logIdFilePath.split("java");
+        return splitByJava[0] + "java\\";
+    }
+
 }

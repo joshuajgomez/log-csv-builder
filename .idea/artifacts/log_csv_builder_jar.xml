@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="log-csv-builder:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/log_csv_builder_jar</output-path>
+    <root id="archive" name="log-csv-builder.jar">
+      <element id="module-output" name="log-csv-builder" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/opencsv-5.6.jar" path-in-jar="/" />
+      <element id="library" level="project" name="opencsv-5.6" />
+    </root>
+  </artifact>
+</component>
