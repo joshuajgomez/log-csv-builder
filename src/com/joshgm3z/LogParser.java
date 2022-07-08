@@ -36,6 +36,7 @@ public class LogParser {
     }
 
     public void buildLogList(String data) {
+        mLogDataList.clear();
 
         List<LogHeader> headerList = buildLogHeaderList(data);
 
@@ -69,14 +70,10 @@ public class LogParser {
         return headerValue;
     }
 
-    public void buildLogParams(String data) {
-        String[] splitBySemicolon = data.toString().split(";");
+    public void buildLogParams(String fileData) {
+        String[] splitBySemicolon = fileData.split(";");
         for (String javaLine : splitBySemicolon) {
-            if (!javaLine.contains("=")) {
-                parseLogParams(javaLine);
-            } else {
-                // ignore
-            }
+            parseLogParams(javaLine);
         }
     }
 

@@ -71,7 +71,7 @@ public class FileManager {
             Scanner scanner = new Scanner(new File(logIdFilePath));
             while (scanner.hasNext()) {
                 String line = scanner.nextLine();
-                if (!line.isEmpty()) {
+                if (!line.isEmpty() && !line.startsWith("#")) {
                     fileList.add(mLogParser.removeSymbol(line, "\""));
                 }
             }
