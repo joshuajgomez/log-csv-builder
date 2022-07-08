@@ -1,7 +1,6 @@
 package com.joshgm3z;
 
 import com.joshgm3z.data.LogData;
-import com.joshgm3z.data.ProgressTimer;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class Main {
 //        System.out.println("Main() called with: logIdFilePath = [" + logIdFilePath + "], outputPath = [" + outputPath + "]");
         this.mLogIdFilePath = logIdFilePath;
         this.mOutputPath = outputPath;
-        mFileManager = new FileManager();
+        mFileManager = new FileManager(new LogParser());
     }
 
     public static void main(String[] args) {

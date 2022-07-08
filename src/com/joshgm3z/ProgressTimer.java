@@ -1,4 +1,4 @@
-package com.joshgm3z.data;
+package com.joshgm3z;
 
 import java.util.Timer;
 import java.util.TimerTask;

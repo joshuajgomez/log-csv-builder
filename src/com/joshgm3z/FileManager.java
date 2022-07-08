@@ -18,13 +18,13 @@ import java.util.stream.Stream;
 
 public class FileManager {
 
-    List<LogData> mLogDataList = new ArrayList<>();
+    private LogParser mLogParser;
 
-    private final String WORD_INT_ARRAY = "new Integer[]{";
-    private final String WORD_INT_ARRAY1 = "newInteger[]{";
-    private final int MAX_PARAM_NAME_LENGTH = 30;
+    public FileManager(LogParser logParser) {
+        mLogParser = logParser;
+    }
 
-    private void readLogIds(String filePath) {
+    private String readData(String filePath) {
         File logIdFile = new File(filePath);
         StringBuilder data = new StringBuilder();
         try (Scanner scanner = new Scanner(logIdFile)) {
@@ -37,69 +37,17 @@ public class FileManager {
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
-        parseData(data.toString());
+        return data.toString();
     }
 
-    private void parseData(String data) {
-        buildLogData(data, buildLogHeader(data));
-    }
-
-    private List<LogHeader> buildLogHeader(String data) {
-        List<LogHeader> logHeaderList = new ArrayList<>();
-        // Log header
-        String[] splitBySemiColon = data.split(";");
-        for (String logId : splitBySemiColon) {
-            if (logId.contains("int")) {
-                // LogId or Log header constant
-                String output = logId.substring(logId.lastIndexOf("int ") + 4);
-                String[] splitByEquals = output.split("=");
-                if (!output.contains("+")) {
-                    String logHeaderName = splitByEquals[0].trim();
-                    String logHeaderValueString = splitByEquals[1].trim();
-                    int logHeaderValue = Integer.parseInt(logHeaderValueString);
-                    logHeaderList.add(new LogHeader(logHeaderName, logHeaderValue));
-                }
-            }
-        }
-        return logHeaderList;
-    }
-
-    private void buildLogData(String data, List<LogHeader> headerList) {
-        String[] splitBySemiColon = data.split(";");
-        for (String logId : splitBySemiColon) {
-            if (logId.contains("int")) {
-                // LogId or Log header constant
-                String output = logId.substring(logId.lastIndexOf("int ") + 4);
-                String[] splitByEquals = output.split("=");
-                if (output.contains("+")) {
-                    // LogId
-                    String _removeLogName = output.substring(output.lastIndexOf("=") + 1).trim();
-                    String _logIdNumberString = _removeLogName.substring(_removeLogName.lastIndexOf("+") + 1).trim();
-                    String logIdName = splitByEquals[0].trim();
-                    String logIdHeader = _removeLogName.substring(0, _removeLogName.lastIndexOf("+")).trim();
-                    int logIdNumber = Integer.parseInt(_logIdNumberString);
-                    int headerValue = getHeaderValue(logIdHeader, headerList);
-                    mLogDataList.add(new LogData(logIdNumber, logIdName, headerValue));
-                }
-            }
-        }
-    }
-
-    private int getHeaderValue(String logIdHeader, List<LogHeader> headerList) {
-        int headerValue = -1;
-        for (LogHeader logHeader : headerList) {
-            if (logHeader.getHeaderName().equals(logIdHeader)) {
-                headerValue = logHeader.getValue();
-            }
-        }
-        return headerValue;
-    }
 
     public List<LogData> findLogs(String logIdFile, String projectRootPath) {
-        mLogDataList.clear();
+        String data = readData(logIdFile);
 
-        readLogIds(logIdFile);
+        // build initial log data list
+        mLogParser.buildLogList(data);
 
+        // get paths to all java files in project
         List<String> allFilePaths = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get(projectRootPath))) {
             allFilePaths = paths.filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toList());
@@ -107,139 +55,14 @@ public class FileManager {
             e.printStackTrace();
         }
 
+        // read all java files to identify log params
         for (String filePath : allFilePaths) {
             if (filePath.endsWith(".java")) {
-                readFile(filePath);
+                String fileData = readData(filePath);
+                mLogParser.buildLogParams(fileData);
             }
         }
-
-        return mLogDataList;
-    }
-
-    private void readFile(String javaFile) {
-//        System.out.println(javaFile);
-        StringBuilder data = new StringBuilder();
-        try {
-            Scanner scanner = new Scanner(new File(javaFile));
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine().trim();
-                if (!line.isEmpty()) {
-                    data.append(line);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        String[] splitBySemicolon = data.toString().split(";");
-        for (String javaLine : splitBySemicolon) {
-            if (
-                    !javaLine.contains("=")) {
-                parseLogParams(javaLine);
-            } else {
-                // ignore
-            }
-        }
-    }
-
-    private void parseLogParams(String javaLine) {
-//        System.out.println(javaLine);
-        int position = -1;
-        for (int i = 0; i < mLogDataList.size(); i++) {
-            if (javaLine.contains(mLogDataList.get(i).getName() + ",")) {
-                position = i;
-                break;
-            }
-        }
-        if (position != -1) {
-            LogData logData = mLogDataList.get(position);
-            if (logData != null) {
-//            System.out.println();
-//            System.out.println();
-//            System.out.println("logData: " + logData);
-//            System.out.println("javaLine: " + javaLine);
-                String[] splitByLogName = javaLine.split(logData.getName());
-                if (splitByLogName.length > 1) {
-                    String paramData = splitByLogName[1];
-//                    System.out.println("paramData: " + paramData);
-                    List<Param> paramList;
-                    if (paramData.contains(WORD_INT_ARRAY) || paramData.contains(WORD_INT_ARRAY1)) {
-                        // integer array
-                        paramList = parseParamIntArray(paramData);
-                    } else {
-                        // single variable
-                        paramList = parseParamOthers(paramData);
-                    }
-                    if (paramList != null) {
-                        logData.setParamList(paramList);
-                        mLogDataList.set(position, logData);
-                    }
-                }
-            }
-        }
-//        System.out.println(mLogDataList);
-    }
-
-    private List<Param> parseParamOthers(String paramData) {
-//        System.out.println(paramData);
-        List<Param> paramMap = new ArrayList<>();
-        String[] splitByComma = paramData.split(",");
-        if (splitByComma.length > 1) {
-            String split = splitByComma[1];
-            split = removeCommonSymbols(split);
-            String paramName = "param";
-            if (!split.contains("\"") && split.length() < MAX_PARAM_NAME_LENGTH && !split.matches("\\d")) {
-                // status
-                paramName = cleanUp(split);
-            }
-            paramMap.add(new Param(paramName, getParamSize(split)));
-        }
-        return paramMap;
-    }
-
-    private int getParamSize(String paramName) {
-        int paramSize = LogData.ParamSize.STRING;
-        if (paramName.contains("size") || paramName.contains("index") || paramName.contains("count") || paramName.matches("\\d")) {
-            paramSize = LogData.ParamSize.INTEGER;
-        } else if (paramName.startsWith("is") || paramName.startsWith("mIs"))
-            paramSize = LogData.ParamSize.BOOLEAN;
-        return paramSize;
-    }
-
-    private List<Param> parseParamIntArray(String paramData) {
-        List<Param> paramList = new ArrayList<>();
-        paramData = removeSymbol(paramData, WORD_INT_ARRAY);
-        paramData = removeSymbol(paramData, WORD_INT_ARRAY1);
-        paramData = removeCommonSymbols(paramData);
-        String[] splitByComma = paramData.split(",");
-        for (String split : splitByComma) {
-            if (!split.trim().isEmpty() && !split.contains("\"")) {
-                paramList.add(new Param(cleanUp(split.trim()), LogData.ParamSize.INTEGER));
-            }
-        }
-        return paramList;
-    }
-
-    private String cleanUp(String paramName) {
-        String[] splitBySpace = paramName.split(" ");
-        if (splitBySpace.length > 1)
-            return splitBySpace[0];
-        else return paramName;
-    }
-
-    private String removeCommonSymbols(String paramData) {
-        return removeSymbol(paramData,
-                "{", "}",
-                ".toString",
-                "(", ")");
-    }
-
-    public String removeSymbol(String text, String... symbol) {
-        for (String _s : symbol) {
-            while (text.contains(_s)) {
-                text = text.replace(_s, "");
-            }
-        }
-        return text.trim();
+        return mLogParser.getLogDataList();
     }
 
     public List<String> readIntoList(String logIdFilePath) {
@@ -249,7 +72,7 @@ public class FileManager {
             while (scanner.hasNext()) {
                 String line = scanner.nextLine();
                 if (!line.isEmpty()) {
-                    fileList.add(removeSymbol(line, "\""));
+                    fileList.add(mLogParser.removeSymbol(line, "\""));
                 }
             }
         } catch (FileNotFoundException e) {
