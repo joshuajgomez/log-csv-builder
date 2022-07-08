@@ -14,6 +14,8 @@ public class LogParser {
     private final String WORD_INT_ARRAY = "new Integer[]{";
     private final String WORD_INT_ARRAY1 = "newInteger[]{";
     private final int MAX_PARAM_NAME_LENGTH = 30;
+    private List<String> mJavaLineList = null;
+    private int mLineCounter;
 
     private List<LogHeader> buildLogHeaderList(String data) {
         List<LogHeader> logHeaderList = new ArrayList<>();
@@ -72,7 +74,10 @@ public class LogParser {
 
     public void buildLogParams(String fileData) {
         String[] splitBySemicolon = fileData.split(";");
+        mJavaLineList = List.of(splitBySemicolon);
+        mLineCounter = 0;
         for (String javaLine : splitBySemicolon) {
+            mLineCounter++;
             parseLogParams(javaLine);
         }
     }
@@ -127,14 +132,37 @@ public class LogParser {
                 // status
                 paramName = cleanUp(split);
             }
-            paramMap.add(new Param(paramName, getParamSize(split)));
+            paramMap.add(new Param(paramName, getParamType(paramName)));
         }
         return paramMap;
     }
 
+    private int getParamType(String paramName) {
+        for (int i = mLineCounter; i >= 0; i--) {
+            String javaLine = mJavaLineList.get(i);
+            if (isVariableDefinition(paramName, javaLine)) {
+
+            }
+        }
+        return 0;
+    }
+
+    private boolean isVariableDefinition(String paramName, String javaLine) {
+        boolean isVariableDefinition = javaLine.contains("String " + paramName)
+                || javaLine.contains("int " + paramName)
+                || javaLine.contains("boolean " + paramName)
+                || javaLine.contains("Integer " + paramName)
+                || javaLine.contains("Boolean " + paramName);
+        System.out.println("isVariableDefinition: " + isVariableDefinition + "; paramName: " + paramName + "; javaLine: " + javaLine);
+        return isVariableDefinition;
+    }
+
     private int getParamSize(String paramName) {
         int paramSize = LogData.ParamSize.STRING;
-        if (paramName.contains("size") || paramName.contains("index") || paramName.contains("count") || paramName.matches("\\d")) {
+        if (paramName.contains("size")
+                || paramName.contains("index")
+                || paramName.contains("count")
+                || paramName.matches("\\d")) {
             paramSize = LogData.ParamSize.INTEGER;
         } else if (paramName.startsWith("is") || paramName.startsWith("mIs"))
             paramSize = LogData.ParamSize.BOOLEAN;
