@@ -45,10 +45,10 @@ public class LogParser {
         String[] splitBySemiColon = data.split(";");
         for (String logId : splitBySemiColon) {
             if (logId.contains("int")) {
-                System.out.println("logId = " + logId);
+//                System.out.println("logId = " + logId);
                 // LogId or Log header constant
                 String output = logId.substring(logId.lastIndexOf("int") + 3).trim();
-                System.out.println("output = " + output);
+//                System.out.println("output = " + output);
                 String[] splitByEquals = output.split("=");
                 if (output.contains("+")) {
                     // LogId
@@ -130,7 +130,7 @@ public class LogParser {
             String split = splitByComma[1];
             split = removeCommonSymbols(split);
             String paramName = "param";
-            if (!split.contains("\"") && split.length() < MAX_PARAM_NAME_LENGTH && !split.matches("\\d")) {
+            if (!split.contains("\"") && !split.matches("\\d")) {
                 // status
                 paramName = cleanUp(split);
             }
@@ -147,7 +147,7 @@ public class LogParser {
                 return variableDefinition;
             }
         }
-        return LogData.ParamSize.STRING;
+        return getParamSize(paramName);
     }
 
     private int searchVariableDefinition(String paramName, String javaLine) {

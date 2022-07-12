@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -79,5 +80,19 @@ public class FileManager {
             e.printStackTrace();
         }
         return fileList;
+    }
+
+    public HashMap<String, String> readFileNames(String fileNamingText) {
+        HashMap<String, String> fileNameMap = new HashMap<>();
+        if (fileNamingText != null && !fileNamingText.isEmpty()) {
+            List<String> texts = readIntoList(fileNamingText);
+            for (String text : texts) {
+                String[] splitByHash = text.split("#");
+                if (splitByHash.length > 1) {
+                    fileNameMap.put(splitByHash[0].trim(), splitByHash[1].trim());
+                }
+            }
+        }
+        return fileNameMap;
     }
 }
