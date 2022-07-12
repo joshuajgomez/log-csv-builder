@@ -10,7 +10,7 @@ public class LogData {
     }
 
     public @interface ParamSize {
-        int UNKNOWN = 0;
+        int UNKNOWN = -1;
         int BOOLEAN = 1;
         int INTEGER = 4;
         int STRING = 256;

@@ -140,21 +140,26 @@ public class LogParser {
     private int getParamType(String paramName) {
         for (int i = mLineCounter; i >= 0; i--) {
             String javaLine = mJavaLineList.get(i);
-            if (isVariableDefinition(paramName, javaLine)) {
-
+            int variableDefinition = searchVariableDefinition(paramName, javaLine);
+            if (variableDefinition != LogData.ParamSize.UNKNOWN) {
+                return variableDefinition;
             }
         }
-        return 0;
+        return LogData.ParamSize.STRING;
     }
 
-    private boolean isVariableDefinition(String paramName, String javaLine) {
-        boolean isVariableDefinition = javaLine.contains("String " + paramName)
-                || javaLine.contains("int " + paramName)
-                || javaLine.contains("boolean " + paramName)
-                || javaLine.contains("Integer " + paramName)
-                || javaLine.contains("Boolean " + paramName);
-        System.out.println("isVariableDefinition: " + isVariableDefinition + "; paramName: " + paramName + "; javaLine: " + javaLine);
-        return isVariableDefinition;
+    private int searchVariableDefinition(String paramName, String javaLine) {
+        int variableType = LogData.ParamSize.UNKNOWN;
+        if (javaLine.contains("String " + paramName)) {
+            variableType = LogData.ParamSize.STRING;
+        } else if (javaLine.contains("int " + paramName) || javaLine.contains("Integer " + paramName)) {
+            variableType = LogData.ParamSize.INTEGER;
+        } else if (javaLine.contains("boolean " + paramName) || javaLine.contains("Boolean " + paramName)) {
+            variableType = LogData.ParamSize.BOOLEAN;
+        }
+        if (variableType != LogData.ParamSize.UNKNOWN)
+            System.out.println("variableType: " + variableType + "; paramName: " + paramName + "; javaLine: " + javaLine);
+        return variableType;
     }
 
     private int getParamSize(String paramName) {
